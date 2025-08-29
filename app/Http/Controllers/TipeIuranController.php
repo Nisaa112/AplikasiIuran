@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TipeIuran;
 use Illuminate\Http\Request;
 
 class TipeIuranController extends Controller
@@ -14,7 +15,13 @@ class TipeIuranController extends Controller
             return response()->json($data);
         }
         
-        return view('tipeIuran/index')->with($data);
+        return view('tipeIuran/index', ['data' => $data]);
+    }
+
+    public function show($id)
+    {
+        $tipeIuran = TipeIuran::find($id);
+        return view('tipeIuran/detail', compact('tipe_iuran'));
     }
 
     public function create()
@@ -44,14 +51,14 @@ class TipeIuranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('tipeIuran')->with('success', 'Data berhasil disimpan');
-        else return redirect('tipeIuran')->with('error', 'Data gagal disimpan');
+        if($status) return redirect('tipe_iuran')->with('success', 'Data berhasil disimpan');
+        else return redirect('tipe_iuran')->with('error', 'Data gagal disimpan');
     }
 
     public function edit($id) 
     {
-        $data['result'] = \App\Models\TipeIuran::where('id', $id)->first();
-        return view('tipeIuran/form')->with($data);
+        $data = TipeIuran::findOrFail($id);
+        return view('tipeIuran/form', ['data' => $data]);
     }
 
     public function update(Request $request, $id)
@@ -67,7 +74,7 @@ class TipeIuranController extends Controller
             'period' => 'required|in:bulanan,tahunan,sekali,lainnya',
         ]);
         
-        $tipeIuran = \App\Models\TipeIuran::where('id', $id)->first();
+        $tipeIuran = TipeIuran::findOrFail($id);
 
         $status = $tipeIuran->update($validated);
 
@@ -78,13 +85,13 @@ class TipeIuranController extends Controller
             ], $status ? 200 : 500);
         }
         
-        if($tipeIuran) return redirect('tipeIuran')->with('success', 'Data berhasil diubah');
-        else return redirect('tipeIuran')->with('error', 'Data gagal diubah');
+        if($tipeIuran) return redirect('tipe_iuran')->with('success', 'Data berhasil diubah');
+        else return redirect('tipe_iuran')->with('error', 'Data gagal diubah');
     }
 
     public function destroy(Request $request, $id)
     {
-        $result = \App\Models\TipeIuran::where('id', $id)->first();
+        $result = TipeIuran::findOrFail($id);
         $status = $result->delete();
 
         if ($request->expectsJson()){
@@ -94,7 +101,7 @@ class TipeIuranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('tipeIuran')->with('success', 'Data berhasil dihapus');
-        else return redirect('tipeIuran')->with('error', 'Data gagal dihapus');
+        if($status) return redirect('tipe_iuran')->with('success', 'Data berhasil dihapus');
+        else return redirect('tipe_iuran')->with('error', 'Data gagal dihapus');
     }
 }
