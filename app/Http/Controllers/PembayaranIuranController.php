@@ -11,7 +11,7 @@ class PembayaranIuranController extends Controller
 {
     public function index(Request $request)
     {
-        $data = PembayaranIuran::with('tipe_iuran', 'user')->get();
+        $data = PembayaranIuran::with('user')->get();
 
         if($request->expectsJson()) {
             return response()->json($data);
@@ -22,18 +22,17 @@ class PembayaranIuranController extends Controller
 
     public function create()
     {
-        $tipeIuran = TipeIuran::all();
         $user = User::all();
-        return view('pembayaranIuran/form', compact('tipeIuran', 'user'));
+        return view('pembayaranIuran/form', compact('user'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
+            // 'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
             'id_user' => 'required|exists:users,id',
             'jumlah' => 'required|numeric|min:0',
-            'catatan' => 'required|string|max:500',
+            'catatan' => 'nullable|string|max:500',
             'tgl_bayar' => 'required|date',
         ]);
 
@@ -53,16 +52,17 @@ class PembayaranIuranController extends Controller
     public function edit($id)
     {
         $data = PembayaranIuran::findOrFail($id);
-        return view('pembayaranIuran/form', ['data' => $data]);
+        $user = User::all();
+        return view('pembayaranIuran/form', ['data' => $data, 'user' => $user]);
     }
 
     public function update(Request $request, $id) 
     {
         $validated = $request->validate([
-            'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
+            // 'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
             'id_user' => 'required|exists:users,id',
             'jumlah' => 'required|numeric|min:0',
-            'catatan' => 'required|string|max:500',
+            'catatan' => 'nullable|string|max:500',
             'tgl_bayar' => 'required|date',
         ]);
 
@@ -76,7 +76,7 @@ class PembayaranIuranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($pembayaran) return redirect('pembayaran_iuran')->with('success', 'Data berhasil diubah');
+        if($status) return redirect('pembayaran_iuran')->with('success', 'Data berhasil diubah');
         else return redirect('pembayaran_iuran')->with('error', 'Data gagal diubah');
     }
 

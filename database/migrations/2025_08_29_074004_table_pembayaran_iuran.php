@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('pembayaran_iuran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_tipe_iuran')->constrained('tipe_iuran')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->decimal('jumlah', 12, 2);
             $table->text('catatan')->nullable();

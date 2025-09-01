@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipe_iuran', function (Blueprint $table){
+        Schema::create('members', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->text('deskripsi')->nullable();
-            $table->decimal('nominal', 12, 2)->nullable();
-            $table->enum('period', ['bulanan', 'tahunan', 'sekali', 'lainnya'])->default('bulanan');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
+            $table->string('nama');
+            $table->text('alamat');
+            $table->string('no_hp', 20);
+            $table->string('email')->nullable()->unique();
+            $table->string('foto')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipe_iuran');
+        Schema::dropIfExists('members');
     }
 };
