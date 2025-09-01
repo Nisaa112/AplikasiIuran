@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
 use App\Models\PembayaranIuran;
-use App\Models\TipeIuran;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -11,7 +11,7 @@ class PembayaranIuranController extends Controller
 {
     public function index(Request $request)
     {
-        $data = PembayaranIuran::with('user')->get();
+        $data = PembayaranIuran::with('user, member')->get();
 
         if($request->expectsJson()) {
             return response()->json($data);
@@ -23,7 +23,8 @@ class PembayaranIuranController extends Controller
     public function create()
     {
         $user = User::all();
-        return view('pembayaranIuran/form', compact('user'));
+        $member = Member::all();
+        return view('pembayaranIuran/form', compact('user', 'member'));
     }
 
     public function store(Request $request)
@@ -31,6 +32,7 @@ class PembayaranIuranController extends Controller
         $validated = $request->validate([
             // 'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
             'id_user' => 'required|exists:users,id',
+            'id_member' => 'required|exists:member,id',
             'jumlah' => 'required|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
             'tgl_bayar' => 'required|date',
@@ -53,7 +55,8 @@ class PembayaranIuranController extends Controller
     {
         $data = PembayaranIuran::findOrFail($id);
         $user = User::all();
-        return view('pembayaranIuran/form', ['data' => $data, 'user' => $user]);
+        $member = Member::all();
+        return view('pembayaranIuran/form', ['data' => $data, 'user' => $user, 'member' => $member]);
     }
 
     public function update(Request $request, $id) 
@@ -61,6 +64,7 @@ class PembayaranIuranController extends Controller
         $validated = $request->validate([
             // 'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
             'id_user' => 'required|exists:users,id',
+            'id_member' => 'required|exists:member,id',
             'jumlah' => 'required|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
             'tgl_bayar' => 'required|date',

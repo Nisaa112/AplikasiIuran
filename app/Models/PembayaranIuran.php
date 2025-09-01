@@ -12,6 +12,7 @@ class PembayaranIuran extends Model
     protected $table = 'pembayaran_iuran';
     protected $fillable = [
         'id_user',
+        'id_member',
         'jumlah',
         'catatan',
         'tgl_bayar',
@@ -20,5 +21,10 @@ class PembayaranIuran extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function member()
+    {
+        return $this->belongsTo(Member::class, 'id_member');
     }
 }
