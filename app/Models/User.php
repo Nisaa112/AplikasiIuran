@@ -59,11 +59,16 @@ class User extends Authenticatable implements JWTSubject
 
     public function pembayaranIuran()
     {
-        return $this->hasMany(pembayaranIuran::class, 'id_pembayaran_iuran');
+        return $this->hasMany(pembayaranIuran::class, 'id_user');
     }
 
     public function member()
     {
-        return $this->hasMany(Member::class, 'id_member');
+        return $this->hasMany(Member::class, 'id_user');
+    }
+
+    public function pengeluaran()
+    {
+        return $this->hasMany(Pengeluaran::class, 'id_user');
     }
 }

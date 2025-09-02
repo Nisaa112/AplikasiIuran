@@ -6,12 +6,18 @@ use App\Models\Member;
 use App\Models\PembayaranIuran;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranIuranController extends Controller
 {
+    private function findPembayaranByIdAndUser($id)
+    {
+        return PembayaranIuran::where('id_user', Auth::id())->findOrFail($id);
+    }
+
     public function index(Request $request)
     {
-        $data = PembayaranIuran::with('user, member')->get();
+        $data = PembayaranIuran::where('id_user', Auth::id())->with('user', 'member')->get();
 
         if($request->expectsJson()) {
             return response()->json($data);
@@ -22,21 +28,22 @@ class PembayaranIuranController extends Controller
 
     public function create()
     {
-        $user = User::all();
-        $member = Member::all();
-        return view('pembayaranIuran/form', compact('user', 'member'));
+        // $user = User::all();
+        $member = Member::where('id_user', Auth::id())->pluck('nama', 'id');
+        return view('pembayaranIuran/form', compact('members'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // 'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
-            'id_user' => 'required|exists:users,id',
-            'id_member' => 'required|exists:member,id',
+            // 'id_user' => 'required|exists:users,id',
+            'id_member' => 'required|exists:members,id',
             'jumlah' => 'required|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
             'tgl_bayar' => 'required|date',
         ]);
+
+        $validated['id_user'] = Auth::id();
 
         $status = \App\Models\PembayaranIuran::create($validated);
 
@@ -53,24 +60,23 @@ class PembayaranIuranController extends Controller
 
     public function edit($id)
     {
-        $data = PembayaranIuran::findOrFail($id);
-        $user = User::all();
-        $member = Member::all();
-        return view('pembayaranIuran/form', ['data' => $data, 'user' => $user, 'member' => $member]);
+        $data = $this->findPembayaranByIdAndUser($id);
+        // $user = User::all();
+        $member = Member::where('id_user', Auth::id())->pluck('nama', 'id');
+        return view('pembayaranIuran/form', ['data' => $data, 'member' => $member]);
     }
 
     public function update(Request $request, $id) 
     {
+        $pembayaran = $this->findPembayaranByIdAndUser($id);
+
         $validated = $request->validate([
-            // 'id_tipe_iuran' => 'required|exists:tipe_iuran,id',
-            'id_user' => 'required|exists:users,id',
-            'id_member' => 'required|exists:member,id',
+            'id_member' => 'required|exists:members,id',
             'jumlah' => 'required|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
             'tgl_bayar' => 'required|date',
         ]);
 
-        $pembayaran = PembayaranIuran::findOrFail($id);
         $status = $pembayaran->update($validated);
                 
         if ($request->expectsJson()) {
@@ -86,7 +92,7 @@ class PembayaranIuranController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        $result = PembayaranIuran::findOrFail($id);
+        $result = $this->findPembayaranByIdAndUser($id);
         $status = $result->delete();
 
         if ($request->expectsJson()){
