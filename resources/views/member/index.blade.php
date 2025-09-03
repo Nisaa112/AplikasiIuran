@@ -42,7 +42,7 @@
               </thead>
 
               <tbody>
-                @foreach ($member as $index => $row)
+                @foreach ($data as $index => $row)
                 <tr class="umkm-row" data-index="{{ $index }}">
                   <td class="row-no"></td>
                   <td>{{ $row->nama }}</td>
