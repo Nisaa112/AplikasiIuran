@@ -50,7 +50,7 @@
                   <td>{{ $row->no_hp }}</td>
                   <td>{{ $row->email }}</td>
                   <td>
-                    <img src="{{ asset('uploads/'.@$row->images) }}" width="80px" class="img" />
+                    <img src="{{ asset('uploads/'.@$row->foto) }}" width="80px" class="img" />
                   </td>
                   <td>
                     <a href="{{ url("member/$row->id/edit") }}" class="btn btn-sm btn-warning"><i class="fa fa-pencil"></i></a>

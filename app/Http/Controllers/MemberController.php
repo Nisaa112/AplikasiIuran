@@ -49,18 +49,18 @@ class MemberController extends Controller
             'foto' => 'nullable|mimes:jpeg,jpg,png,webp,svg|max:2048',
         ]);
 
-        // if ($request->hasFile('foto')) {
-        //     $file = $request->file('foto');
-        //     $filename = time() . '_' . $file->getClientOriginalName();
-        //     $file->move(public_path('uploads'), $filename);
-        //     $validated['foto'] = $filename;
-        // }
-
         if ($request->hasFile('foto')) {
-            $filename = $request->file('foto')->hashName();
-            $request->file('foto')->storeAs('public/uploads', $filename);
+            $file = $request->file('foto');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads'), $filename);
             $validated['foto'] = $filename;
         }
+
+        // if ($request->hasFile('foto')) {
+        //     $filename = $request->file('foto')->hashName();
+        //     $request->file('foto')->storeAs('public/uploads', $filename);
+        //     $validated['foto'] = $filename;
+        // }
 
         $validated['id_user'] = Auth::id();
 
@@ -73,12 +73,13 @@ class MemberController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('members')->with('success', 'Data ini berhasil ditambahkan');
-        else return redirect('members')->with('error', 'Data ini gagal ditambahkan');
+        if($status) return redirect('/member')->with('success', 'Data ini berhasil ditambahkan');
+        else return redirect('/member')->with('error', 'Data ini gagal ditambahkan');
     }
 
     public function edit($id)
     {
+        // dd('ID dari URL: ' . $id, 'ID User yang Login: ' . Auth::id());
         $data = $this->findMemberByIdAndUser($id);
         // $user = User::all();
         return view('member/form', ['data' => $data]);
@@ -102,17 +103,17 @@ class MemberController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            if ($member->foto) {
-                Storage::delete('public/uploads/' . $member->foto);
+            if ($member->foto && file_exists(public_path('uploads/' . $member->foto))) {
+                unlink(public_path('uploads/' . $member->foto));
             }
-            // $file = $request->file('foto');
-            // $filename = time() . '_' . $file->getClientOriginalName();
-            // $file->move(public_path('uploads'), $filename);
-            // $validated['foto'] = $filename;
-
-            $filename = $request->file('foto')->hashName();
-            $request->file('foto')->storeAs('public/uploads', $filename);
+            $file = $request->file('foto');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads'), $filename);
             $validated['foto'] = $filename;
+
+            // $filename = $request->file('foto')->hashName();
+            // $request->file('foto')->storeAs('public/uploads', $filename);
+            // $validated['foto'] = $filename;
         }
 
         $status = $member->update($validated);
@@ -124,16 +125,16 @@ class MemberController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('members')->with('success', 'Data ini berhasil diupdate');
-        else return redirect('members')->with('error', 'Data ini gagal diupdate');
+        if($status) return redirect('/member')->with('success', 'Data ini berhasil diupdate');
+        else return redirect('/member')->with('error', 'Data ini gagal diupdate');
     }
 
     public function destroy(Request $request, $id)
     {
         $result = $this->findMemberByIdAndUser($id);
 
-        if ($result->foto) {
-            Storage::delete('public/uploads/' . $result->foto);
+        if ($result->foto && file_exists(public_path('uploads/' . $result->foto))) {
+            unlink(public_path('uploads/' . $result->foto));
         }
 
         $status = $result->delete();
@@ -145,7 +146,7 @@ class MemberController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('members')->with('success', 'Data ini berhasil dihapus');
-        else return redirect('members')->with('error', 'Data ini gagal dihapus');
+        if($status) return redirect('/member')->with('success', 'Data ini berhasil dihapus');
+        else return redirect('/member')->with('error', 'Data ini gagal dihapus');
     }
 }

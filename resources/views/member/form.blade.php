@@ -4,12 +4,12 @@
    <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1>
-          {{ empty($result) ? 'Tambah' : 'Edit' }} member
+          {{ empty($data) ? 'Tambah' : 'Edit' }} member
         </h1>
         <ol class="breadcrumb">
           <li><a href="{{ url('member') }}"><i class="fa fa-dashboard"></i> Home</a></li>
           <li>Member</li>
-          <li class="active">{{ empty($result) ? 'Tambah' : 'Edit' }} member</li>
+          <li class="active">{{ empty($data) ? 'Tambah' : 'Edit' }} member</li>
         </ol>
       </section>
   
@@ -33,13 +33,13 @@
             @endif  
 
             <form 
-              action="{{ empty($result) ? url('member') : url("member/$result->id/edit") }}" 
+              action="{{ empty($data) ? url('member') : url("member/$data->id/edit") }}" 
               method="POST" 
               enctype="multipart/form-data" 
               class="form-horizontal">
               
               @csrf
-              @if (!empty($result))
+              @if (!empty($data))
                   @method('PATCH')
               @endif
 
@@ -47,7 +47,7 @@
               <div class="form-group">
                   <label class="control-label col-sm-2">Nama</label>
                   <div class="col-sm-10">
-                      <input type="text" name="nama" class="form-control" placeholder="nama" value="{{ @$result->nama }}">
+                      <input type="text" name="nama" class="form-control" placeholder="nama" value="{{ @$data->nama }}">
                   </div>
               </div>
 
@@ -55,7 +55,7 @@
               <div class="form-group">
                   <label class="control-label col-sm-2">Alamat</label>
                   <div class="col-sm-10">
-                      <input type="text" name="alamat" class="form-control" placeholder="alamat" value="{{ @$result->alamat }}">
+                      <input type="text" name="alamat" class="form-control" placeholder="alamat" value="{{ @$data->alamat }}">
                   </div>
               </div>
 
@@ -63,7 +63,7 @@
               <div class="form-group">
                   <label class="control-label col-sm-2">No HP</label>
                   <div class="col-sm-10">
-                      <input type="text" name="no_hp" class="form-control" placeholder="no_hp" value="{{ @$result->no_hp }}">
+                      <input type="text" name="no_hp" class="form-control" placeholder="no_hp" value="{{ @$data->no_hp }}">
                   </div>
               </div>
 
@@ -71,7 +71,7 @@
               <div class="form-group">
                   <label class="control-label col-sm-2">Email</label>
                   <div class="col-sm-10">
-                      <input type="text" name="email" class="form-control" placeholder="email" value="{{ @$result->email }}">
+                      <input type="text" name="email" class="form-control" placeholder="email" value="{{ @$data->email }}">
                   </div>
               </div>
 
@@ -80,9 +80,9 @@
                   <label class="control-label col-sm-2">Foto</label>
                   <div class="col-sm-10">
                       <input type="file" name="foto" />
-                      @if (!empty($result->foto))
+                      @if (!empty($data->foto))
                           <br>
-                          <img src="{{ asset('uploads/' . $result->foto) }}" width="100" />
+                          <img src="{{ asset('uploads/' . $data->foto) }}" width="100" />
                       @endif
                   </div>
               </div>

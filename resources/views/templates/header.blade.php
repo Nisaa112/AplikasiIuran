@@ -142,6 +142,12 @@
             <i class="fa fa-book"></i> <span>Member</span>
           </a>
         </li>
+        
+        <li>
+          <a href="{{ asset('users') }}">
+            <i class="fa fa-book"></i> <span>User</span>
+          </a>
+        </li>
 
       </ul>
     </section>
