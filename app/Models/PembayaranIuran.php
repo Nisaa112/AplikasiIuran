@@ -18,6 +18,7 @@ class PembayaranIuran extends Model
         'id_member',
         'jumlah',
         'catatan',
+        'metode_bayar',
         'tgl_bayar',
     ];
 

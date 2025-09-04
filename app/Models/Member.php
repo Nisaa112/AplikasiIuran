@@ -29,6 +29,6 @@ class Member extends Model
 
     public function pembayaranIuran()
     {
-        return $this->belongsTo(PembayaranIuran::class, 'id_pembayaran_iuran');
+        return $this->hasMany(PembayaranIuran::class, 'id_member');
     }
 }

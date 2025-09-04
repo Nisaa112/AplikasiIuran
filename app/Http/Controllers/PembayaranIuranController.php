@@ -29,7 +29,7 @@ class PembayaranIuranController extends Controller
     public function create()
     {
         // $user = User::all();
-        $member = Member::where('id_user', Auth::id())->pluck('nama', 'id');
+        $members = Member::where('id_user', Auth::id())->pluck('nama', 'id');
         return view('pembayaranIuran/form', compact('members'));
     }
 
@@ -40,6 +40,7 @@ class PembayaranIuranController extends Controller
             'id_member' => 'required|exists:members,id',
             'jumlah' => 'required|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
+            'metode_bayar' => ['required', 'in:cash,transfer'],
             'tgl_bayar' => 'required|date',
         ]);
 
@@ -54,8 +55,8 @@ class PembayaranIuranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('pembayaran_iuran')->with('success', 'Data berhasil ditambah');
-        else return redirect('pembayaran_iuran')->with('error', 'Data gagal ditambah');
+        if($status) return redirect('/pembayaran')->with('success', 'Data berhasil ditambah');
+        else return redirect('/pembayaran')->with('error', 'Data gagal ditambah');
     }
 
     public function edit($id)
@@ -74,6 +75,7 @@ class PembayaranIuranController extends Controller
             'id_member' => 'required|exists:members,id',
             'jumlah' => 'required|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
+            'metode_bayar' => ['required', 'in:cash,transfer'],
             'tgl_bayar' => 'required|date',
         ]);
 
@@ -86,8 +88,8 @@ class PembayaranIuranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('pembayaran_iuran')->with('success', 'Data berhasil diubah');
-        else return redirect('pembayaran_iuran')->with('error', 'Data gagal diubah');
+        if($status) return redirect('/pembayaran')->with('success', 'Data berhasil diubah');
+        else return redirect('/pembayaran')->with('error', 'Data gagal diubah');
     }
 
     public function destroy(Request $request, $id)
@@ -102,7 +104,7 @@ class PembayaranIuranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('pembayaran_iuran')->with('success', 'Data berhasil dihapus');
-        else return redirect('pembayaran_iuran')->with('error', 'Data gagal dihapus');
+        if($status) return redirect('/pembayaran')->with('success', 'Data berhasil dihapus');
+        else return redirect('/pembayaran')->with('error', 'Data gagal dihapus');
     }
 }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('id_member')->constrained('members')->onDelete('cascade');
             $table->decimal('jumlah', 12, 2);
             $table->text('catatan')->nullable();
+            $table->enum('metode_bayar', ['cash', 'transfer'])->default('cash');
             $table->date('tgl_bayar');
             $table->timestamps();
         });

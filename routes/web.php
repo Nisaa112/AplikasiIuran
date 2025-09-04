@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\PembayaranIuranController;
+use App\Models\PembayaranIuran;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,27 +32,26 @@ Route::middleware('auth')->group(function () {
     // Rute Dashboard/Halaman utama setelah login
     Route::get('/dashboard', [MemberController::class, 'index'])->name('dashboard');
 
-    // RUTE MANUAL MEMBER ANDA KITA PINDAHKAN KE DALAM SINI
-    // Tidak ada yang perlu diubah dari rute-rute ini, hanya lokasinya saja.
-    
-    // URL: /member -> menampilkan daftar member
+    // MEMBER
     Route::get('/member', [MemberController::class, 'index'])->name('member.index');
-
-    // URL: /member/add -> menampilkan form tambah
     Route::get('member/add', [MemberController::class, 'create'])->name('member.create');
-    
-    // URL: /member (POST) -> menyimpan data baru
-    Route::post('member', [MemberController::class, 'store'])->name('member.store');
 
-    // URL: /member/{id}/edit -> menampilkan form edit
+    Route::post('member', [MemberController::class, 'store'])->name('member.store');
     Route::get('member/{id}/edit', [MemberController::class, 'edit'])->name('member.edit');
-    
-    // URL: /member/{id}/edit (PATCH) -> mengupdate data
     Route::patch('member/{id}/edit', [MemberController::class, 'update'])->name('member.update');
 
-    // URL: /member/{id}/delete (PATCH) -> menghapus data
-    // Catatan: Biasanya ini menggunakan method DELETE, tapi kita ikuti rute Anda.
     Route::delete('member/{id}/delete', [MemberController::class, 'destroy'])->name('member.destroy');
+
+    // PENGELUARAN
+    Route::get('/pembayaran', [PembayaranIuranController::class, 'index'])->name('pembayaran.index');
+
+    Route::get('pembayaran/add', [PembayaranIuranController::class, 'create'])->name('pembayaran.create');
+    Route::post('pembayaran', [PembayaranIuranController::class, 'store'])->name('pembayaran.store');
+
+    Route::get('pembayaran/{id}/edit', [PembayaranIuranController::class, 'edit'])->name('pembayaran.edit');
+    Route::patch('pembayaran/{id}/edit', [PembayaranIuranController::class, 'update'])->name('pembayaran.update');
+
+    Route::delete('pembayaran/{id}/delete', [PembayaranIuranController::class, 'destroy'])->name('pembayaran.destroy');
 
     // ========================================================
     // TAMBAHKAN INI: RUTE UNTUK MANAJEMEN USER

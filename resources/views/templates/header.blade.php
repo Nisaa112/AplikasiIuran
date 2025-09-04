@@ -148,6 +148,12 @@
             <i class="fa fa-book"></i> <span>User</span>
           </a>
         </li>
+        
+        <li>
+          <a href="{{ asset('/pembayaran') }}">
+            <i class="fa fa-book"></i> <span>Pembayaran Iuran</span>
+          </a>
+        </li>
 
       </ul>
     </section>
