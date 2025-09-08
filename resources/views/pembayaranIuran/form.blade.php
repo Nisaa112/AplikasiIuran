@@ -51,7 +51,7 @@
                             {{-- Opsi default --}}
                             <option value="">Pilih Anggota</option>
                             {{-- Loop untuk menampilkan data anggota dari controller --}}
-                            @foreach($members as $id => $nama)
+                            @foreach($member as $id => $nama)
                                 <option value="{{ $id }}" {{ old('id_member', @$data->id_member) == $id ? 'selected' : '' }}>
                                     {{ $nama }}
                                 </option>
@@ -72,7 +72,7 @@
               <div class="form-group">
                   <label class="control-label col-sm-2">Catatan</label>
                   <div class="col-sm-10">
-                      <textarea name="catatan" class="form-control" placeholder="catatan produk">{{ @$data->catatan }}</textarea>
+                      <textarea name="catatan" class="form-control" placeholder="catatan">{{ @$data->catatan }}</textarea>
                   </div>
               </div>
 

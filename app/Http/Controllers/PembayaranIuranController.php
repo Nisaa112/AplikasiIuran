@@ -29,8 +29,8 @@ class PembayaranIuranController extends Controller
     public function create()
     {
         // $user = User::all();
-        $members = Member::where('id_user', Auth::id())->pluck('nama', 'id');
-        return view('pembayaranIuran/form', compact('members'));
+        $member = Member::where('id_user', Auth::id())->pluck('nama', 'id');
+        return view('pembayaranIuran/form', compact('member'));
     }
 
     public function store(Request $request)

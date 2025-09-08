@@ -3,8 +3,10 @@
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembayaranIuranController;
+use App\Http\Controllers\PengeluaranController;
 use App\Models\PembayaranIuran;
 
 /*
@@ -42,7 +44,7 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('member/{id}/delete', [MemberController::class, 'destroy'])->name('member.destroy');
 
-    // PENGELUARAN
+    // PEMBAYARAN
     Route::get('/pembayaran', [PembayaranIuranController::class, 'index'])->name('pembayaran.index');
 
     Route::get('pembayaran/add', [PembayaranIuranController::class, 'create'])->name('pembayaran.create');
@@ -52,6 +54,22 @@ Route::middleware('auth')->group(function () {
     Route::patch('pembayaran/{id}/edit', [PembayaranIuranController::class, 'update'])->name('pembayaran.update');
 
     Route::delete('pembayaran/{id}/delete', [PembayaranIuranController::class, 'destroy'])->name('pembayaran.destroy');
+
+    // PENGELUARAN
+    Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran.index');
+
+    Route::get('pengeluaran/add', [PengeluaranController::class, 'create'])->name('pengeluaran.create');
+    Route::post('pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
+
+    Route::get('pengeluaran/{id}/edit', [PengeluaranController::class, 'edit'])->name('pengeluaran.edit');
+    Route::patch('pengeluaran/{id}/edit', [PengeluaranController::class, 'update'])->name('pengeluaran.update');
+
+    Route::delete('pengeluaran/{id}/delete', [PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
+
+    // LAPORAN
+    Route::get('/laporanBulanan/{tahun}/{bulan}', [LaporanController::class, 'laporanBulananWeb'])->name('laporan.index');
+    Route::get('/laporanAnggota/{tahun}/{bulan}', [LaporanController::class, 'laporanAnggotaWeb'])->name('laporan.anggota');
+    Route::get('/laporanKas', [LaporanController::class, 'laporanKasWeb'])->name('laporan.kas');
 
     // ========================================================
     // TAMBAHKAN INI: RUTE UNTUK MANAJEMEN USER

@@ -154,6 +154,18 @@
             <i class="fa fa-book"></i> <span>Pembayaran Iuran</span>
           </a>
         </li>
+        
+        <li>
+          <a href="{{ asset('/pengeluaran') }}">
+            <i class="fa fa-book"></i> <span>Pengeluaran Iuran</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="{{ asset('/laporanBulanan/{tahun}/{bulan}') }}">
+            <i class="fa fa-book"></i> <span>Laporan Bulanan</span>
+          </a>
+        </li>
 
       </ul>
     </section>

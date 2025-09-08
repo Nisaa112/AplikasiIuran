@@ -56,8 +56,8 @@ class PengeluaranController extends Controller
             ], $status ? 201 : 500);
         }
 
-        if($status) return redirect('pengeluarans')->with('success', 'Data berhasil ditambahkan');
-        else return redirect('pengeluarans')->with('error', 'Data gagal ditambahkan');
+        if($status) return redirect('/pengeluaran')->with('success', 'Data berhasil ditambahkan');
+        else return redirect('/pengeluaran')->with('error', 'Data gagal ditambahkan');
     }
 
     public function edit($id)
@@ -92,8 +92,8 @@ class PengeluaranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('pengeluarans')->with('success', 'Data berhasil diperbarui');
-        else return redirect('pengeluarans')->with('error', 'Data gagal diperbarui');
+        if($status) return redirect('/pengeluaran')->with('success', 'Data berhasil diperbarui');
+        else return redirect('/pengeluaran')->with('error', 'Data gagal diperbarui');
     }
 
     public function destroy(Request $request, $id)
@@ -108,7 +108,7 @@ class PengeluaranController extends Controller
             ], $status ? 200 : 500);
         }
 
-        if($status) return redirect('pengeluarans')->with('success', 'Data berhasil dihapus');
-        else return redirect('pengeluarans')->with('error', 'Data gagal dihapus');
+        if($status) return redirect('/pengeluaran')->with('success', 'Data berhasil dihapus');
+        else return redirect('/pengeluaran')->with('error', 'Data gagal dihapus');
     }
 }
