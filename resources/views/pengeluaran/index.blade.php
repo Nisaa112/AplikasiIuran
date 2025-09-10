@@ -78,7 +78,7 @@
       <!-- /.content -->
 @endsection
 
-@push('script')
+@push('scripts')
 <script>
   $(function () {
     const perPage = 5;

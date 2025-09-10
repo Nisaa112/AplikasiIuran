@@ -2,208 +2,99 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PembayaranIuran;
-use App\Models\Pengeluaran;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel; // Add this line
-use App\Exports\LaporanKeuanganExport; // Add this line
-use Barryvdh\DomPDF\Facade\Pdf; // Add this line
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\LaporanService; // <-- Panggil Service
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LaporanKeuanganExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
+    protected $laporanService;
+
+    public function __construct(LaporanService $laporanService)
+    {
+        $this->laporanService = $laporanService;
+    }
+
+    // Di dalam file LaporanController.php
     public function index(Request $request)
     {
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $user = Auth::user();
 
-        // Total Pemasukan
-        $totalPemasukan = PembayaranIuran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_bayar', [$startDate, $endDate]);
-            })->sum('jumlah');
+        // Panggil service untuk mendapatkan SEMUA data
+        $data = $this->laporanService->getLaporanData($user, $startDate, $endDate);
 
-        // Total Pengeluaran
-        $totalPengeluaran = Pengeluaran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_pengeluaran', [$startDate, $endDate]);
-            })->sum('jumlah');
-
-        // Chart Data Pemasukan
-        $pemasukanChartData = PembayaranIuran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_bayar', [$startDate, $endDate]);
-            })
-            ->select(DB::raw('DATE(tgl_bayar) as date'), DB::raw('SUM(jumlah) as total'))
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
-        
-        // Chart Data Pengeluaran
-        $pengeluaranChartData = Pengeluaran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_pengeluaran', [$startDate, $endDate]);
-            })
-            ->select(DB::raw('DATE(tgl_pengeluaran) as date'), DB::raw('SUM(jumlah) as total'))
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
-
-        $labels = $pemasukanChartData->pluck('date')->merge($pengeluaranChartData->pluck('date'))->unique()->sort()->values();
-
-        $pemasukanValues = $labels->map(function ($date) use ($pemasukanChartData) {
-            $item = $pemasukanChartData->where('date', $date)->first();
-            return $item ? $item->total : 0;
-        });
-
-        $pengeluaranValues = $labels->map(function ($date) use ($pengeluaranChartData) {
-            $item = $pengeluaranChartData->where('date', $date)->first();
-            return $item ? $item->total : 0;
-        });
-
-        // Riwayat Transaksi
-        $riwayatPembayaran = PembayaranIuran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_bayar', [$startDate, $endDate]);
-            })
-            ->with('member')
-            ->get()
-            ->map(function ($item) {
-                return (object) [
-                    'tipe' => 'Pemasukan',
-                    'nama' => $item->member->nama ?? 'Tidak diketahui',
-                    'jumlah' => $item->jumlah,
-                    'tanggal' => $item->tgl_bayar,
-                    'keterangan' => $item->catatan,
-                ];
-            });
-
-        $riwayatPengeluaran = Pengeluaran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_pengeluaran', [$startDate, $endDate]);
-            })
-            ->get()
-            ->map(function ($item) {
-                return (object) [
-                    'tipe' => 'Pengeluaran',
-                    'nama' => $item->nama,
-                    'jumlah' => $item->jumlah,
-                    'tanggal' => $item->tgl_pengeluaran,
-                    'keterangan' => $item->keterangan,
-                ];
-            });
-
-        $riwayatTransaksi = $riwayatPembayaran->merge($riwayatPengeluaran)->sortByDesc('tanggal');
-
-        // Paginate the combined results manually
+        // Paginate manual untuk view
         $perPage = 10;
-        $page = request()->get('page', 1);
-        $paginatedRiwayatTransaksi = new \Illuminate\Pagination\LengthAwarePaginator(
-            $riwayatTransaksi->forPage($page, $perPage),
-            $riwayatTransaksi->count(),
+        $page = $request->get('page', 1);
+        $paginatedRiwayatTransaksi = new LengthAwarePaginator(
+            $data['riwayatTransaksi']->forPage($page, $perPage),
+            $data['riwayatTransaksi']->count(),
             $perPage,
             $page,
-            ['path' => url()->current()]
+            ['path' => url()->current(), 'query' => $request->query()]
         );
 
-        return view('dashboard', [
-            'labels' => $labels,
-            'pemasukanValues' => $pemasukanValues,
-            'pengeluaranValues' => $pengeluaranValues,
-            'totalPemasukan' => $totalPemasukan,
-            'totalPengeluaran' => $totalPengeluaran,
+        return view('laporan.index', [
+            'totalPemasukan' => $data['totalPemasukan'],
+            'totalPengeluaran' => $data['totalPengeluaran'],
             'startDate' => $startDate,
             'endDate' => $endDate,
             'riwayatTransaksi' => $paginatedRiwayatTransaksi,
+            // Mengambil data chart dari service
+            'labels' => $data['chart']['labels'],
+            'pemasukanValues' => $data['chart']['pemasukanValues'],
+            'pengeluaranValues' => $data['chart']['pengeluaranValues'],
         ]);
     }
-    
+
     public function exportExcel(Request $request)
     {
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $user = Auth::user();
 
-        $riwayatPembayaran = PembayaranIuran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_bayar', [$startDate, $endDate]);
-            })
-            ->with('member')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'Tipe Transaksi' => 'Pemasukan',
-                    'Nama' => $item->member->nama ?? 'Tidak diketahui',
-                    'Jumlah' => $item->jumlah,
-                    'Tanggal' => $item->tgl_bayar,
-                    'Keterangan' => $item->catatan,
-                ];
-            });
+        $data = $this->laporanService->getLaporanData($user, $startDate, $endDate);
 
-        $riwayatPengeluaran = Pengeluaran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_pengeluaran', [$startDate, $endDate]);
-            })
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'Tipe Transaksi' => 'Pengeluaran',
-                    'Nama' => $item->nama,
-                    'Jumlah' => $item->jumlah,
-                    'Tanggal' => $item->tgl_pengeluaran,
-                    'Keterangan' => $item->keterangan,
-                ];
-            });
+        // Ubah koleksi objek menjadi koleksi array untuk diekspor
+        $exportData = $data['riwayatTransaksi']->sortBy('tanggal')->map(function ($item) {
+            return [
+                'Tipe Transaksi' => $item->tipe,
+                'Nama' => $item->nama,
+                'Jumlah' => $item->jumlah,
+                'Tanggal' => $item->tanggal,
+                'Keterangan' => $item->keterangan,
+            ];
+        });
 
-        $riwayatTransaksi = $riwayatPembayaran->merge($riwayatPengeluaran)->sortBy('Tanggal');
-
-        return Excel::download(new LaporanKeuanganExport($riwayatTransaksi), 'laporan_keuangan.xlsx');
+        $fileName = 'laporan_keuangan_' . now()->format('Ymd') . '.xlsx';
+        return Excel::download(new LaporanKeuanganExport($exportData), $fileName);
     }
 
     public function exportPDF(Request $request)
     {
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $user = Auth::user();
 
-        $riwayatPembayaran = PembayaranIuran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_bayar', [$startDate, $endDate]);
-            })
-            ->with('member')
-            ->get()
-            ->map(function ($item) {
-                return (object) [
-                    'tipe' => 'Pemasukan',
-                    'nama' => $item->member->nama ?? 'Tidak diketahui',
-                    'jumlah' => $item->jumlah,
-                    'tanggal' => $item->tgl_bayar,
-                    'keterangan' => $item->catatan,
-                ];
-            });
+        $data = $this->laporanService->getLaporanData($user, $startDate, $endDate);
 
-        $riwayatPengeluaran = Pengeluaran::where('id_user', Auth::id())
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tgl_pengeluaran', [$startDate, $endDate]);
-            })
-            ->get()
-            ->map(function ($item) {
-                return (object) [
-                    'tipe' => 'Pengeluaran',
-                    'nama' => $item->nama,
-                    'jumlah' => $item->jumlah,
-                    'tanggal' => $item->tgl_pengeluaran,
-                    'keterangan' => $item->keterangan,
-                ];
-            });
+        $pdfData = [
+            'riwayatTransaksi' => $data['riwayatTransaksi']->sortBy('tanggal'),
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'totalPemasukan' => $data['riwayatPembayaran']->sum('jumlah'),
+            'totalPengeluaran' => $data['riwayatPengeluaran']->sum('jumlah'),
+            'saldoAkhir' => $data['saldoAkhir'],
+        ];
 
-        $riwayatTransaksi = $riwayatPembayaran->merge($riwayatPengeluaran)->sortBy('tanggal');
-        
-        $totalPemasukan = $riwayatPembayaran->sum('jumlah');
-        $totalPengeluaran = $riwayatPengeluaran->sum('jumlah');
-        $saldoAkhir = $totalPemasukan - $totalPengeluaran;
-
-        $pdf = Pdf::loadView('exports.laporan_keuangan_pdf', compact('riwayatTransaksi', 'startDate', 'endDate', 'totalPemasukan', 'totalPengeluaran', 'saldoAkhir'));
-        return $pdf->download('laporan_keuangan.pdf');
+        $pdf = Pdf::loadView('exports.laporan_keuangan_pdf', $pdfData);
+        $fileName = 'laporan_keuangan_' . now()->format('Ymd') . '.pdf';
+        return $pdf->download($fileName);
     }
 }

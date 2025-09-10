@@ -66,10 +66,10 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('pengeluaran/{id}/delete', [PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
 
-    // LAPORAN
-    Route::get('/laporanBulanan/{tahun}/{bulan}', [LaporanController::class, 'laporanBulananWeb'])->name('laporan.index');
-    Route::get('/laporanAnggota/{tahun}/{bulan}', [LaporanController::class, 'laporanAnggotaWeb'])->name('laporan.anggota');
-    Route::get('/laporanKas', [LaporanController::class, 'laporanKasWeb'])->name('laporan.kas');
+    // // LAPORAN
+    // Route::get('/laporanBulanan/{tahun}/{bulan}', [LaporanController::class, 'laporanBulananWeb'])->name('laporan.index');
+    // Route::get('/laporanAnggota/{tahun}/{bulan}', [LaporanController::class, 'laporanAnggotaWeb'])->name('laporan.anggota');
+    // Route::get('/laporanKas', [LaporanController::class, 'laporanKasWeb'])->name('laporan.kas');
 
     // ========================================================
     // TAMBAHKAN INI: RUTE UNTUK MANAJEMEN USER
@@ -82,6 +82,19 @@ Route::middleware('auth')->group(function () {
     // - users.update  (PUT/PATCH /users/{user})
     // - users.destroy (DELETE /users/{user})
     Route::resource('users', UserController::class);
+
+    // Route untuk menampilkan halaman dashboard utama
+    // URL: http://domain-anda.com/dashboard
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
+    // Route untuk mengekspor data ke Excel
+    // URL: http://domain-anda.com/laporan/export/excel
+    Route::get('/laporan/export/excel', [LaporanController::class, 'exportExcel'])->name('laporan.export.excel');
+
+    // Route untuk mengekspor data ke PDF
+    // URL: http://domain-anda.com/laporan/export/pdf
+    Route::get('/laporan/export/pdf', [LaporanController::class, 'exportPDF'])->name('laporan.export.pdf');
+
 
 });
 

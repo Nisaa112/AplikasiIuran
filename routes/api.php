@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\LaporanApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembayaranIuranController;
@@ -44,5 +45,7 @@ Route::middleware('auth:api')->group(function () {
     // PENGELUARAN
     // URL: /api/pengeluaran
     Route::apiResource('pengeluaran', PengeluaranController::class);
+
+    Route::get('/laporana', [LaporanApiController::class, 'getLaporan']);
 
 });

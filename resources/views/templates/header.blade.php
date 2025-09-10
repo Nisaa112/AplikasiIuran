@@ -162,7 +162,7 @@
         </li>
         
         <li>
-          <a href="{{ asset('/laporanBulanan/{tahun}/{bulan}') }}">
+          <a href="{{ route('laporan.index') }}">
             <i class="fa fa-book"></i> <span>Laporan Bulanan</span>
           </a>
         </li>
@@ -178,5 +178,5 @@
   <div class="content-wrapper">
     @yield('content')
   </div>
-  @stack('script')
+  @stack('scriptS')
   @include('templates/footer')
