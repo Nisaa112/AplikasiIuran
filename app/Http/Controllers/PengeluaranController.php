@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\histori;
 use App\Models\Pengeluaran;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -48,6 +49,21 @@ class PengeluaranController extends Controller
         $validated['id_user'] = Auth::id();
 
         $status = Pengeluaran::create($validated);
+
+        if ($status) {
+            // Ini yang akan mencatat history secara otomatis
+            histori::create([
+                'id_user' => Auth::id(),
+                'keterangan' => 'Pengeluaran: ' . $validated['nama'],
+                'jumlah' => $validated['jumlah'],
+                'tgl_transaksi' => $validated['tgl_pengeluaran'],
+                'jenis_transaksi' => 'pengeluaran', // Otomatis diset 'pengeluaran'
+            ]);
+
+            return redirect('/pengeluaran')->with('success', 'Data berhasil ditambahkan');
+        } else {
+            return redirect('/pengeluaran')->with('error', 'Data gagal ditambahkan');
+        }
         
         if($request->expectsJson()) {
             return response()->json([

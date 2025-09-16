@@ -75,4 +75,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Pengeluaran::class, 'id_user');
     }
+
+    public function histori()
+    {
+        return $this->hasMany(histori::class, 'id_user');
+    }
 }

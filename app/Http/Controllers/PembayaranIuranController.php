@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\histori;
 use App\Models\Member;
 use App\Models\PembayaranIuran;
 use App\Models\User;
@@ -47,6 +48,22 @@ class PembayaranIuranController extends Controller
         $validated['id_user'] = Auth::id();
 
         $status = \App\Models\PembayaranIuran::create($validated);
+
+        if ($status) {
+            // Ini yang akan mencatat history secara otomatis
+            $member = \App\Models\Member::find($validated['id_member']);
+            histori::create([
+                'id_user' => Auth::id(),
+                'keterangan' => 'Pemasukan dari ' . $member->nama,
+                'jumlah' => $validated['jumlah'],
+                'tgl_transaksi' => $validated['tgl_bayar'],
+                'jenis_transaksi' => 'pemasukan', // Otomatis diset 'pemasukan'
+            ]);
+
+            return redirect('/pembayaran')->with('success', 'Data berhasil ditambah');
+        } else {
+            return redirect('/pembayaran')->with('error', 'Data gagal ditambah');
+        }
 
         if ($request->expectsJson()) {
             return response()->json([
