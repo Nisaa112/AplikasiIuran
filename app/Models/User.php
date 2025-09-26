@@ -80,4 +80,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(histori::class, 'id_user');
     }
+
+    public function profil()
+    {
+        return $this->hasMany(Profil::class, 'id_user');
+    }
 }

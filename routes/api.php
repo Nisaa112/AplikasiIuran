@@ -6,6 +6,7 @@ use App\Http\Controllers\historyController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembayaranIuranController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\ProfilController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +34,12 @@ Route::middleware('auth:api')->group(function () {
     
     // PENGELUARAN
     Route::apiResource('pengeluaran', PengeluaranController::class);
+    
+    // PROFIL (Singleton Resource)
+    Route::get('/profil', [ProfilController::class, 'show']);
+    Route::post('/profil', [ProfilController::class, 'save']); 
+    Route::get('/profil/edit', [ProfilController::class, 'edit']); 
+    Route::delete('/profil', [ProfilController::class, 'destroy']);
 
     Route::get('/laporana', [LaporanApiController::class, 'getLaporan']);
 
